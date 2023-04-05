@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        /* div{
+            width: 200px;
+            height: 200px;
+            border: 1px solid black;
+        } */
+       button{
+        height: 40px;
+            vertical-align:middle;
+            /* padding: 0; */
+            width: 60px;
+            font-size: 20px;
+            border-radius: 5px;
+            border: none;
+            background: #B3D33F;
+            color: #fff;
+       }
+    </style>
+</head>
+<body>
+    <input type="text" placeholder="输入你的内容："/>
+    <button>发送</button>
+
+
+    <div></div>
+    <script>
+        var input = document.querySelector('input');
+        var button = document.querySelector('button');
+        var div = document.querySelector('div');
+
+        const TYPE_ENTER = 0
+        const TYPE_LEAVE = 1
+        const TYPE_MSG = 2
+        var socket = new WebSocket('ws://localhost:3001')
+        socket.addEventListener('open',function(){
+            div.innerHTML = '连接服务成功'
+        })
+        button.addEventListener('click',function(){
+            var value = input.value
+            socket.send(value)
+            input.value = ''
+        })
+        socket.addEventListener('message',function(e){
+           var data = JSON.parse(e.data)
+           var dv = document.createElement('div')
+           dv.innerText = data.msg + '-----'+data.time
+           switch(data.type){
+                case TYPE_ENTER:
+                    dv.style.color = 'green'
+                    break
+                case TYPE_MSG:
+                    dv.style.color = 'blue'
+                    break
+                case TYPE_LEAVE:
+                    dv.style.color = 'red'
+                    break
+                default:
+                    dv.style.color = "yellow"
+                    break
+            }
+
+           div.appendChild(dv);
+        })
+        socket.addEventListener('close',function(){
+            div.innerHTML = '服务断开'
+            console.log("服务断开");
+        })
+    </script>
+</body>
+</html>
